@@ -1,0 +1,42 @@
+from rest_framework import serializers
+from auth_app.models import User
+from django.contrib.auth import get_user_model
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
+
+User = get_user_model()
+
+class RegistrationSerializer(serializers.Serializer):
+    """Serializer for user registration."""
+
+    password = serializers.CharField(write_only=True)
+    confirmed_password = serializers.CharField(write_only=True)
+    email = serializers.EmailField(required=True)
+
+    def validate_email(self, value):
+        """
+        Check if the email is already in use.
+        """
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError("Email is already in use.")
+        return value
+    
+    def validate(self, data):
+        """
+        Check if the password and confirmed password match.
+        """
+        password = data.get('password')
+        confirmed_password = data.get('confirmed_password')
+
+        if password != confirmed_password:
+            raise serializers.ValidationError("Passwords do not match.")
+        return data
+    
+    def create(self, validated_data):
+        """
+        Create a new user with the validated data.
+        """
+        user = User.objects.create_user(
+            email=validated_data['email'],
+            password=validated_data['password']
+        )
+        return user
