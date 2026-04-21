@@ -40,3 +40,29 @@ class RegistrationSerializer(serializers.Serializer):
             password=validated_data['password']
         )
         return user
+    
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    """
+    Custom serializer for obtaining JWT tokens using email and password.
+    """
+
+    def validate(self, attrs):
+        """
+        Validate the email and password, and return the token if valid.
+        """
+        email = attrs.get('email')
+        password = attrs.get('password')
+
+        try: 
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            raise serializers.ValidationError("Invalid email or password.")
+        
+        if not user.check_password(password):
+            raise serializers.ValidationError("Invalid email or password.")
+        
+        data = super().validate(attrs)
+        
+        return data
+
+
