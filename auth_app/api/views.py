@@ -17,15 +17,14 @@ class RegistrationView(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        token = default_token_generator.make_token(user)
         user = serializer.save()
-        user.is_active = False
-        user.save()
+        token = default_token_generator.make_token(user)
 
-        return {
+
+        return Response({
             'user': {
                 'id': user.id,
                 'email': user.email,
             },
             'token': token,
-        }
+        }, status=status.HTTP_201_CREATED)

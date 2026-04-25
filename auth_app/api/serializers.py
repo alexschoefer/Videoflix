@@ -1,9 +1,7 @@
 from rest_framework import serializers
-from auth_app.models import User
-from django.contrib.auth import get_user_model
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
+from django.contrib.auth.models import User
 
-User = get_user_model()
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
 
 class RegistrationSerializer(serializers.Serializer):
     """Serializer for user registration."""
@@ -37,7 +35,9 @@ class RegistrationSerializer(serializers.Serializer):
         """
         user = User.objects.create_user(
             email=validated_data['email'],
-            password=validated_data['password']
+            password=validated_data['password'],
+            username=validated_data['email'],
+            is_active=False
         )
         return user
     
