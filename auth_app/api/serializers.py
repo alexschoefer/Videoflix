@@ -48,21 +48,34 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
     def validate(self, attrs):
         """
-        Validate the email and password, and return the token if valid.
+        Validate the email and password, and generate JWT tokens if the credentials are valid.
+        Args:
+            attrs: A dictionary containing the email and password.
+        Returns:
+            A dictionary containing the refresh and access tokens, and the user object if authentication is successful.
+        Raises:
+            serializers.ValidationError: If the email or password is invalid, or if the account is not activated.
         """
-        email = attrs.get('email')
-        password = attrs.get('password')
+        email = attrs.get("email")
+        password = attrs.get("password")
 
-        try: 
+        try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
             raise serializers.ValidationError("Invalid email or password.")
-        
+
         if not user.check_password(password):
             raise serializers.ValidationError("Invalid email or password.")
-        
-        data = super().validate(attrs)
-        
-        return data
+
+        if not user.is_active:
+            raise serializers.ValidationError("Account is not activated.")
+
+        refresh = self.get_token(user)
+
+        return {
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+            "user": user
+        }
 
 

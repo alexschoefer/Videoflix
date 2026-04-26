@@ -8,6 +8,7 @@ from rest_framework.views import APIView
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.models import User
+from rest_framework_simplejwt.views import TokenObtainPairView,TokenRefreshView
 
 class RegistrationView(generics.CreateAPIView):
     """
@@ -71,3 +72,58 @@ class AccountActivationView(APIView):
             return Response({'message': 'Account activated successfully.'}, status=status.HTTP_200_OK)
         else:
             return Response({'error': 'Invalid activation link.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+class CookieTokenObtainPairView(TokenObtainPairView):
+        """
+        API view for obtaining JWT tokens using email and password.
+        Handles POST requests to authenticate a user and return a JWT token if the credentials are valid.
+        """
+        serializer_class = CustomTokenObtainPairSerializer
+
+        def post(self, request, *args, **kwargs):
+            """
+            Handle POST requests for obtaining JWT tokens.
+            Validates the email and password using the CustomTokenObtainPairSerializer, generates JWT tokens if the credentials are valid, and returns a response with the tokens set as HTTP-only cookies.
+            Args:
+                request: The incoming HTTP request object containing the email and password.
+            Returns:
+                A Response object containing the JWT tokens set as HTTP-only cookies if authentication is successful, or an error response if validation fails.
+            """
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            access = serializer.validated_data.get("access")
+            refresh = serializer.validated_data.get("refresh")
+            user = serializer.validated_data.get("user")
+
+            response = self._create_login_response(user)
+
+            response.set_cookie(
+                key='access_token',
+                value=str(access),
+                httponly=True,
+                secure=False,
+                samesite='Lax'
+            )
+
+            response.set_cookie(
+                key='refresh_token',
+                value=str(refresh),
+                httponly=True,
+                secure=False,
+                samesite='Lax'
+            )
+            
+            return response
+        
+        def _create_login_response(self, user):
+            """
+            Create a response object for a successful login.
+            """
+            return Response(
+                {
+                    "detail": "Login successful",
+                    "user": {
+                        "id": user.id,
+                        "username": user.email,
+                        }
+                }, status=status.HTTP_200_OK)
