@@ -10,6 +10,7 @@ from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.models import User
 from rest_framework_simplejwt.views import TokenObtainPairView,TokenRefreshView
 
+
 class RegistrationView(generics.CreateAPIView):
     """
     API view for user registration.
@@ -127,3 +128,32 @@ class CookieTokenObtainPairView(TokenObtainPairView):
                         "username": user.email,
                         }
                 }, status=status.HTTP_200_OK)
+        
+class LogoutView(generics.GenericAPIView):
+    """ 
+    API view for user logout.
+    Handles POST requests to log out a user by deleting the access and refresh tokens from the cookies and blacklisting the refresh token if it exists.
+    """
+    def post(self, request, *args, **kwargs):
+        """Handle POST requests for user logout.
+        Deletes the access and refresh tokens from the cookies and blacklists the refresh token if it exists.
+        Args:            
+            request: The incoming HTTP request object.
+        Returns:
+            A Response object indicating that the logout was successful and that all tokens will be deleted, or an error response if the refresh token is invalid.
+        """
+        refresh = request.COOKIES.get('refresh_token')
+
+        response = Response({"detail": "Logout successful! All tokens will be deleted. Refresh token is now invalid."}, status=status.HTTP_200_OK)
+
+        response.delete_cookie('access_token')
+        response.delete_cookie('refresh_token')
+
+        if refresh:
+            try:
+                token = RefreshToken(refresh)
+                token.blacklist()
+            except Exception as e:
+                return Response({"error": "Invalid refresh token"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        return response
