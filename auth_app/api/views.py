@@ -157,3 +157,36 @@ class LogoutView(generics.GenericAPIView):
                 return Response({"error": "Invalid refresh token"}, status=status.HTTP_400_BAD_REQUEST)
         
         return response
+    
+class TokenRefreshView(TokenRefreshView):
+    """
+    API view for refreshing JWT tokens.
+    Handles POST requests to refresh the access token using a valid refresh token. Returns a new access token if the refresh token is valid.
+    """
+    def post(self, request, *args, **kwargs):
+        """
+        Override the post method to refresh the access token and set it in an HTTP-only cookie.
+        """
+        refresh_token = request.COOKIES.get('refresh_token')
+        if refresh_token is None:
+            return Response({"detail": "Refresh token not provided in cookies."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        serializer = self.get_serializer(data={"refresh": refresh_token})
+
+        try:
+            serializer.is_valid(raise_exception=True)
+        except:
+            return Response({"detail": "Invalid refresh token."}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        access_token = serializer.validated_data.get("access")
+
+        response = Response({"detail": "Token refreshed successfully!"}, status=status.HTTP_200_OK)
+        response.set_cookie(
+            key='access_token',
+            value=str(access_token),
+            httponly=True,
+            secure=False,
+            samesite='Lax'
+        )
+
+        return response
