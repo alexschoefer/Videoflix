@@ -32,9 +32,11 @@ class RegistrationView(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
+        # Token generation for account activation
         token = default_token_generator.make_token(user)
         uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
-
+        # Activation link
+        activation_link = f"{settings.DOMAIN}/activate/{uidb64}/{token}/"
         return Response({
             'user': {
                 'id': user.id,
