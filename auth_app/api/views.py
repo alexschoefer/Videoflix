@@ -1,6 +1,6 @@
 from rest_framework import status, generics
 from rest_framework.response import Response
-from .serializers import RegistrationSerializer, CustomTokenObtainPairSerializer
+from .serializers import RegistrationSerializer, CustomTokenObtainPairSerializer, PasswortResetSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth.tokens import default_token_generator
@@ -9,7 +9,8 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.models import User
 from rest_framework_simplejwt.views import TokenObtainPairView,TokenRefreshView
-
+from django.conf import settings
+from auth_app.services.email_service import send_activation_email, send_password_reset_email
 
 class RegistrationView(generics.CreateAPIView):
     """
@@ -192,3 +193,43 @@ class TokenRefreshView(TokenRefreshView):
         )
 
         return response
+    
+
+class PasswordResetView(APIView):
+    """
+    API view for password reset.
+    Handles POST requests to initiate a password reset process by sending a password reset email to the user.
+    """
+    permission_classes = [AllowAny]
+    
+    def generate_password_reset_token(self, user):
+        """
+        Generate a password reset token for the given user.
+        Args:
+            user: The user object for whom the password reset token is being generated.
+        Returns:
+            A string representing the generated password reset token.
+        """
+        try:
+            user = User.objects.get(email=user)
+            token = default_token_generator.make_token(user)
+            uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+            reset_link = f"{settings.DOMAIN}/password_reset_confirm/{uidb64}/{token}/"
+            send_password_reset_email(user, reset_link)
+        except User.DoesNotExist:
+            pass
+        
+    def post(self, request, *args, **kwargs):
+        """
+        Handle POST requests for password reset.
+        Validates the email provided in the request data, generates a password reset token, and sends a password reset email to the user if the email is associated with an account.
+        Args:
+            request: The incoming HTTP request object containing the email for password reset.
+        Returns:
+            A Response object indicating that the password reset email has been sent if the email is valid, or an error response if the email is not associated with any account.
+        """
+        # Implementation for sending password reset email goes here
+        serializer = PasswortResetSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.generate_password_reset_token(serializer.validated_data['email'])
+        return Response({"detail": "An email has been sent to reset your password."}, status=status.HTTP_200_OK)

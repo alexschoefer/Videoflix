@@ -78,4 +78,17 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             "user": user
         }
 
+class PasswortResetSerializer(serializers.Serializer):
+    """
+    Serializer for password reset requests.
+    """
 
+    email = serializers.EmailField(required=True)
+
+    def validate_email(self, value):
+        """
+        Check if the email exists in the system.
+        """
+        if not User.objects.filter(email=value, is_active = True).exists():
+            raise serializers.ValidationError("No user is associated with this email.")
+        return value
