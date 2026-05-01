@@ -15,7 +15,7 @@ def send_activation_email(user, activation_link):
     to_email = user.email
 
     # Render the email template with the user's information and token
-    html_content = render_to_string('activation_email.html', {
+    html_content = render_to_string('emails/account_activation_email.html', {
         'user_name': user_name,
         'activation_link': activation_link,
     })
