@@ -34,7 +34,11 @@ DOMAIN = os.environ.get("DOMAIN", default="http://127.0.0.1:8000")
 FRONTEND_DOMAIN = os.environ.get("FRONTEND_DOMAIN", default="http://127.0.0.1:5500")
 FRONTEND_ACCOUNT_ACTIVATION_PAGE = os.environ.get("FRONTEND_ACCOUNT_ACTIVATION_PAGE", default="/pages/auth/activate.html")
 CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS", default="http://localhost:4200").split(",")
-
+CORS_ALLOWED_ORIGINS = os.environ.get(
+    "CORS_ALLOWED_ORIGINS",
+    default="http://127.0.0.1:5500,http://localhost:5500,http://127.0.0.1:5501,http://localhost:5501"
+).split(",")
+CORS_ALLOW_CREDENTIALS = True
 
 # Application definition
 
