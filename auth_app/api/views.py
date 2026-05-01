@@ -233,3 +233,38 @@ class PasswordResetView(APIView):
         serializer.is_valid(raise_exception=True)
         self.generate_password_reset_token(serializer.validated_data['email'])
         return Response({"detail": "An email has been sent to reset your password."}, status=status.HTTP_200_OK)
+    
+class PasswordResetConfirmView(APIView):
+    """
+    API view for confirming password reset.
+    Handles POST requests to reset the user's password using the provided token and new password.
+    """
+    permission_classes = [AllowAny]
+
+    def post(self, request, uidb64, token, *args, **kwargs):
+        """
+        Handle POST requests for confirming password reset.
+        Validates the token and resets the user's password if the token is valid.
+        Args:
+            request: The incoming HTTP request object containing the new password.
+            uidb64: The base64-encoded user ID extracted from the URL.
+            token: The password reset token extracted from the URL.
+        Returns:
+            A Response object indicating that the password has been reset successfully if the token is valid, or an error response if the token is invalid.
+        """
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+
+        if user is not None and default_token_generator.check_token(user, token):
+            new_password = request.data.get('new_password')
+            if not new_password:
+                return Response({"detail": "New password not provided."}, status=status.HTTP_400_BAD_REQUEST)
+            
+            user.set_password(new_password)
+            user.save()
+            return Response({"detail": "Your Password has been successfully reset."}, status=status.HTTP_200_OK)
+        else:
+            return Response({"detail": "Invalid password reset link."}, status=status.HTTP_400_BAD_REQUEST)

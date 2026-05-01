@@ -92,3 +92,22 @@ class PasswortResetSerializer(serializers.Serializer):
         if not User.objects.filter(email=value, is_active = True).exists():
             raise serializers.ValidationError("No user is associated with this email.")
         return value
+    
+class PasswordConfirmResetSerializer(serializers.Serializer):
+    """
+    Serializer for confirming password reset.
+    """
+
+    new_password = serializers.CharField(write_only=True)
+    confirmed_password = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        """
+        Check if the new password and confirmed password match.
+        """
+        new_password = data.get('new_password')
+        confirmed_password = data.get('confirmed_password')
+
+        if new_password != confirmed_password:
+            raise serializers.ValidationError("Passwords do not match.")
+        return data
