@@ -37,7 +37,12 @@ class RegistrationView(generics.CreateAPIView):
         token = default_token_generator.make_token(user)
         uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
         # Activation link
-        activation_link = f"{settings.FRONTED_DOMAIN}{settings.FRONTEND_ACCOUNT_ACTIVATION_PAGE}{uidb64}/{token}/"
+        activation_link = (
+            f"{settings.FRONTEND_DOMAIN}"
+            f"{settings.FRONTEND_ACCOUNT_ACTIVATION_PAGE}"
+            f"?uid={uidb64}&token={token}"
+            )
+        print("ACTIVATION LINK BACKEND:", activation_link)
         send_activation_email(user, activation_link)
         return Response({
             'user': {

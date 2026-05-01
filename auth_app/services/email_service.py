@@ -13,17 +13,17 @@ def send_activation_email(user, activation_link):
     from_email = settings.DEFAULT_FROM_EMAIL
     user_name = user.first_name if user.first_name else user.email
     to_email = user.email
-
+    print("ACTIVATION LINK BACKEND_HELPER_1:", activation_link)
     # Render the email template with the user's information and token
     html_content = render_to_string('emails/account_activation_email.html', {
         'user_name': user_name,
         'activation_link': activation_link,
     })
-
+    
     # Create the email message
     email = EmailMultiAlternatives(subject, '', from_email, [to_email])
     email.attach_alternative(html_content, "text/html")
-
+    print("ACTIVATION LINK BACKEND_HELPER_2:", activation_link)
     # Send the email
     email.send()
 
