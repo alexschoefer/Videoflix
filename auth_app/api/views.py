@@ -207,7 +207,7 @@ class PasswordResetView(APIView):
     """
     permission_classes = [AllowAny]
     
-    def generate_password_reset_token(self, user):
+    def generate_password_reset_token(self, email):
         """
         Generate a password reset token for the given user.
         Args:
@@ -216,10 +216,14 @@ class PasswordResetView(APIView):
             A string representing the generated password reset token.
         """
         try:
-            user = User.objects.get(email=user)
+            user = User.objects.get(email=email)
             token = default_token_generator.make_token(user)
             uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
-            reset_link = f"{settings.DOMAIN}/password_reset_confirm/{uidb64}/{token}/"
+            reset_link = (
+            f"{settings.FRONTEND_DOMAIN}"
+            f"{settings.FRONTEND_RESET_PASSWORD_PAGE}"
+            f"?uid={uidb64}&token={token}"
+        )
             send_password_reset_email(user, reset_link)
         except User.DoesNotExist:
             pass

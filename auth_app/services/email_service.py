@@ -34,7 +34,7 @@ def send_password_reset_email(user, reset_link):
     to_email = user.email
 
     # Render the email template with the user's information and reset link
-    html_content = render_to_string('password_reset_email.html', {
+    html_content = render_to_string('emails/password_reset_email.html', {
         'reset_link': reset_link,
     })
 
