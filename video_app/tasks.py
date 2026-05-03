@@ -1,0 +1,80 @@
+import os
+from django.conf import settings
+import subprocess
+from video_app.models import Video
+
+def convert_video_to_hls(video_id):
+    """
+    Task to convert a video to HLS format and create a thumbnail.
+    Args:        
+        video_id (int): The ID of the video to be processed.
+    This function retrieves the video instance using the provided video_id, converts the video to HLS format with multiple resolutions, and creates a thumbnail for the video. 
+    The converted HLS files are stored in a structured directory under MEDIA_ROOT, and the thumbnail is saved as a JPEG image. 
+    The thumbnail URL is then updated in the Video model instance.
+    """
+    video = Video.objects.get(id=video_id)
+    target = video.video_file.path
+    _convert_video_to_hls_resolutions_format(video_id, target)
+    _create_video_thumbnail(video_id, target, video)
+
+
+def _convert_video_to_hls_resolutions_format(video_id, target):
+    """
+    Helper function to convert a video to HLS format with multiple resolutions.
+    Args:
+        video_id (int): The ID of the video being processed.
+        target (str): The file path of the original video to be converted.
+    This function defines a set of resolutions (480p, 720p, 1080p) and uses FFmpeg to convert the original video into HLS format for each resolution.
+    The converted HLS files are stored in a structured directory under MEDIA_ROOT, organized by video ID and resolution.    
+    """
+    resolutions = {
+        "480p": "854:480",
+        "720p": "1280:720",
+        "1080p": "1920:1080",
+    }
+
+    for resolution, size in resolutions.items():
+        output_dir = os.path.join(settings.MEDIA_ROOT, f'hls/{video_id}/{resolution}')
+        os.makedirs(output_dir, exist_ok=True)
+        output_path = os.path.join(output_dir, 'index.m3u8')
+
+        command = [
+            'ffmpeg',
+            '-i', target,
+            '-vf', f'scale={size}',
+            '-c:v', 'libx264',
+            '-hls_time', '10',
+            '-hls_list_size', '0',
+            '-f', 'hls',
+            output_path
+        ]
+
+        subprocess.run(command, check=True)
+
+def _create_video_thumbnail(video_id, target, video):
+    """
+    Helper function to create a thumbnail for a video.
+    Args:
+        video_id (int): The ID of the video being processed.
+        target (str): The file path of the original video from which to create the thumbnail.
+        video (Video): The Video model instance for which the thumbnail is being created.
+    This function uses FFmpeg to extract a frame from the original video (at the 1-second mark) and saves it as a JPEG image in a structured directory under MEDIA_ROOT.
+    The thumbnail URL is then updated in the Video model instance and saved to the database.
+    """
+    thumbnail_path = os.path.join(settings.MEDIA_ROOT, f'thumbnails/{video_id}.jpg')
+    os.makedirs(os.path.dirname(thumbnail_path), exist_ok=True)
+
+    command = [
+        'ffmpeg',
+        '-i', target,
+        '-ss', '00:00:01.000',
+        '-vframes', '1',
+        '-q:v', '2',
+        thumbnail_path
+    ]
+
+    subprocess.run(command, check=True)
+    video.thumbnail_url = f'thumbnails/{video_id}.jpg'
+    video.save()
+
+    
