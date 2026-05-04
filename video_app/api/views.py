@@ -20,15 +20,6 @@ class VideoListView(generics.ListAPIView):
         serializer_class (Serializer): The serializer class used to serialize the video data.
     """
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
     serializer_class = VideoSerializer
-
-    def get(self, request, *args, **kwargs):
-        """
-        Handle GET requests to retrieve a list of videos.
-        Returns a JSON response containing the serialized video data.
-        """
-        videos = Video.objects.all().order_by('-created_at')
-        serializer = self.get_serializer(videos, many=True, context={'request': request})
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    queryset = Video.objects.all().order_by('-created_at')
       
