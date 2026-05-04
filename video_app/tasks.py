@@ -16,7 +16,7 @@ def convert_video_to_hls(movie_id):
     target = video.video_file.path
     _convert_video_to_hls_resolutions_format(movie_id, target)
     _create_video_thumbnail(movie_id, target, video)
-
+    print("START HLS JOB", movie_id)
 
 def _convert_video_to_hls_resolutions_format(movie_id, target):
     """
@@ -39,8 +39,7 @@ def _convert_video_to_hls_resolutions_format(movie_id, target):
         output_path = os.path.join(output_dir, 'index.m3u8')
 
         command = [
-            'ffmpeg',
-            '-i', target,
+            'ffmpeg','-i', target,
             '-vf', f'scale={size}',
             '-c:v', 'libx264',
             '-c:a', 'aac',
@@ -63,20 +62,19 @@ def _create_video_thumbnail(movie_id, target, video):
     This function uses FFmpeg to extract a frame from the original video (at the 1-second mark) and saves it as a JPEG image in a structured directory under MEDIA_ROOT.
     The thumbnail URL is then updated in the Video model instance and saved to the database.
     """
-    thumbnail_path = os.path.join(settings.MEDIA_ROOT, f'thumbnails/{movie_id}.jpg')
+    thumbnail_filename = f"{movie_id}.jpg"
+    thumbnail_path = os.path.join(settings.MEDIA_ROOT, "thumbnails", thumbnail_filename)
     os.makedirs(os.path.dirname(thumbnail_path), exist_ok=True)
 
     command = [
-        'ffmpeg',
+        'ffmpeg', '-y',
         '-i', target,
-        '-ss', '00:00:01.000',
+        '-ss', '00:00:10',
         '-vframes', '1',
         '-q:v', '2',
         thumbnail_path
     ]
 
     subprocess.run(command, check=True)
-    video.thumbnail_url = f'thumbnails/{movie_id}.jpg'
-    video.save()
-
-    
+    video.thumbnail.name = f"thumbnails/{thumbnail_filename}"
+    video.save(update_fields=["thumbnail"])

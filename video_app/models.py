@@ -29,7 +29,7 @@ class Video(models.Model):
     video_file = models.FileField(upload_to='videos/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     category = models.CharField(max_length=100, choices=CATEGORY_CHOICES)
-    thumbnail_url = models.URLField(max_length=500, blank=True, null=True)
+    thumbnail_url = models.FileField(upload_to='thumbnails/', blank=True, null=True)
 
     def __str__(self):
         """
