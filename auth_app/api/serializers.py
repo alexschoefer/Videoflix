@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
+from django.contrib.auth import authenticate
 
 class RegistrationSerializer(serializers.Serializer):
     """Serializer for user registration."""
@@ -41,41 +42,38 @@ class RegistrationSerializer(serializers.Serializer):
         )
         return user
     
-class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+class LoginSerializer(serializers.Serializer):
     """
-    Custom serializer for obtaining JWT tokens using email and password.
+    Serializer for user login using email and password.
+    Returns JWT tokens if authentication is successful.
     """
 
-    def validate(self, attrs):
-        """
-        Validate the email and password, and generate JWT tokens if the credentials are valid.
-        Args:
-            attrs: A dictionary containing the email and password.
-        Returns:
-            A dictionary containing the refresh and access tokens, and the user object if authentication is successful.
-        Raises:
-            serializers.ValidationError: If the email or password is invalid, or if the account is not activated.
-        """
-        email = attrs.get("email")
-        password = attrs.get("password")
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
 
-        try:
-            user = User.objects.get(email=email)
-        except User.DoesNotExist:
-            raise serializers.ValidationError("Invalid email or password.")
+    def validate(self, data):
+        email = data.get("email")
+        password = data.get("password")
 
-        if not user.check_password(password):
+        if not email or not password:
+            raise serializers.ValidationError("Email and password are required.")
+
+        # 🔑 Wichtig: username=email (weil Django das erwartet)
+        user = authenticate(username=email, password=password)
+
+        if user is None:
             raise serializers.ValidationError("Invalid email or password.")
 
         if not user.is_active:
             raise serializers.ValidationError("Account is not activated.")
 
-        refresh = self.get_token(user)
+        # JWT Tokens erzeugen
+        refresh = RefreshToken.for_user(user)
 
         return {
+            "user": user,
             "refresh": str(refresh),
             "access": str(refresh.access_token),
-            "user": user
         }
 
 class PasswortResetSerializer(serializers.Serializer):

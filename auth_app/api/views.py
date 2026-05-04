@@ -1,6 +1,6 @@
 from rest_framework import status, generics
 from rest_framework.response import Response
-from .serializers import RegistrationSerializer, CustomTokenObtainPairSerializer, PasswortResetSerializer
+from .serializers import RegistrationSerializer, LoginSerializer, PasswortResetSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth.tokens import default_token_generator
@@ -42,6 +42,7 @@ class RegistrationView(generics.CreateAPIView):
             f"{settings.FRONTEND_ACCOUNT_ACTIVATION_PAGE}"
             f"?uid={uidb64}&token={token}"
             )
+        print(f"Activation link: {activation_link}")  # Debugging line to print the activation link
         send_activation_email(user, activation_link)
         return Response({
             'user': {
@@ -87,7 +88,7 @@ class CookieTokenObtainPairView(TokenObtainPairView):
         API view for obtaining JWT tokens using email and password.
         Handles POST requests to authenticate a user and return a JWT token if the credentials are valid.
         """
-        serializer_class = CustomTokenObtainPairSerializer
+        serializer_class = LoginSerializer
 
         def post(self, request, *args, **kwargs):
             """
