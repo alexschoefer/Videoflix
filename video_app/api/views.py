@@ -79,14 +79,28 @@ class HLSManifestView(APIView):
             )
         
 class HLSSegmentView(APIView):
-    
+    """
+    APIView to handle GET requests for retrieving a specific HLS segment for a video.
+    This view is protected by JWT authentication and requires the user to be authenticated.
+     Attributes:
+        authentication_classes (list): A list of authentication classes to be used for this view.
+        permission_classes (list): A list of permission classes to be applied to this view.
+    """
     authentication_classes = [CustomJWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request, movie_id, resolution, segment):
+        """Handles GET requests to retrieve a specific HLS segment for a video based on the provided movie_id, resolution, and segment name.
+        Args:
+            request (Request): The HTTP request object.
+            movie_id (int): The ID of the video for which to retrieve the HLS segment.
+            resolution (str): The resolution of the HLS stream to retrieve (e.g., "480p", "720p", "1080p").
+            segment (str): The name of the HLS segment file to retrieve (e.g., "000.ts").
+        Returns:
+            Response: An HTTP response containing the content of the HLS segment if found, or an error message if the video or segment is not found.
+        """
         try:
             video = Video.objects.get(id=movie_id)
-            
             segment_path = os.path.join(
                 settings.MEDIA_ROOT,
                 "hls",
@@ -94,13 +108,11 @@ class HLSSegmentView(APIView):
                 resolution,
                 segment
             )
-
             if not os.path.exists(segment_path):
                 return Response(
                     {"error": "Segment not found"},
                     status=status.HTTP_404_NOT_FOUND
                 )
-
             with open(segment_path, "rb") as file:
                 content = file.read()
 
