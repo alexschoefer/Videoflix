@@ -12,6 +12,6 @@ class VideoAdmin(admin.ModelAdmin):
         search_fields (tuple): A tuple of field names that can be searched using the search box in the admin interface.
         ordering (tuple): A tuple defining the default ordering of the video records in the admin interface, in this case, ordered by creation date in descending order.
     """
-    list_display = ('id', 'title', 'created_at')
+    list_display = ('id', 'title', 'created_at', 'category', 'thumbnail_url', 'video_file')
     search_fields = ('title',)
     ordering = ('-created_at',)

@@ -77,3 +77,40 @@ class HLSManifestView(APIView):
                 {"error": "Video not found"},
                 status=status.HTTP_404_NOT_FOUND
             )
+        
+class HLSSegmentView(APIView):
+    
+    authentication_classes = [CustomJWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, movie_id, resolution, segment):
+        try:
+            video = Video.objects.get(id=movie_id)
+            
+            segment_path = os.path.join(
+                settings.MEDIA_ROOT,
+                "hls",
+                str(movie_id),
+                resolution,
+                segment
+            )
+
+            if not os.path.exists(segment_path):
+                return Response(
+                    {"error": "Segment not found"},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+
+            with open(segment_path, "rb") as file:
+                content = file.read()
+
+            return HttpResponse(
+                content,
+                content_type="video/MP2T"
+            )
+
+        except Video.DoesNotExist:
+            return Response(
+                {"error": "Video not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )

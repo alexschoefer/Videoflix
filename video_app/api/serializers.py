@@ -21,5 +21,5 @@ class VideoSerializer(serializers.ModelSerializer):
         """
         request = self.context.get('request')
         if obj.thumbnail_url and request:
-            return request.build_absolute_uri(obj.thumbnail_url)
+            return request.build_absolute_uri(obj.thumbnail_url.url)
         return None
