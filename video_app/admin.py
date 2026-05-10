@@ -1,17 +1,47 @@
 from django.contrib import admin
-from video_app.models import Video
+from django.utils.html import format_html
+from .models import Video
 
-# Register your models here.
+
 @admin.register(Video)
 class VideoAdmin(admin.ModelAdmin):
-    """
-    Admin interface for the Video model.
-    This class defines the configuration for how the Video model is displayed and managed in the Django admin interface.
-     Attributes:
-        list_display (tuple): A tuple of field names to be displayed in the list view of the admin interface.
-        search_fields (tuple): A tuple of field names that can be searched using the search box in the admin interface.
-        ordering (tuple): A tuple defining the default ordering of the video records in the admin interface, in this case, ordered by creation date in descending order.
-    """
-    list_display = ('id', 'title', 'created_at', 'category', 'thumbnail_url', 'video_file')
-    search_fields = ('title',)
-    ordering = ('-created_at',)
+
+    readonly_fields = ("thumbnail_preview",)
+
+    fieldsets = (
+        (
+            "Video Information",
+            {
+                "fields": (
+                    "title",
+                    "description",
+                    "category",
+                    "video_file",
+                )
+            },
+        ),
+        (
+            "Generated Media",
+            {
+                "description": (
+                    "Thumbnail is generated automatically "
+                    "after video processing."
+                ),
+                "fields": ("thumbnail_preview",),
+            },
+        ),
+    )
+
+    def thumbnail_preview(self, obj):
+        """
+        Safely display generated thumbnail preview.
+        """
+        if obj.thumbnail_url and hasattr(obj.thumbnail_url, "url"):
+            return format_html(
+                '<img src="{}" width="200" style="border-radius:8px;" />',
+                obj.thumbnail_url.url
+            )
+
+        return "Thumbnail will be generated after processing."
+
+    thumbnail_preview.short_description = "Thumbnail Preview"
