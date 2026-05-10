@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
 from django.contrib.auth import authenticate
+from rest_framework.exceptions import AuthenticationFailed
 
 class RegistrationSerializer(serializers.Serializer):
     """
@@ -63,10 +64,10 @@ class LoginSerializer(serializers.Serializer):
         user = authenticate(username=email, password=password)
 
         if user is None:
-            raise serializers.ValidationError("Invalid email or password.")
+            raise AuthenticationFailed("Invalid email or password.")
 
         if not user.is_active:
-            raise serializers.ValidationError("Account is not activated.")
+            raise AuthenticationFailed("Account is not activated.")
 
         refresh = RefreshToken.for_user(user)
 
