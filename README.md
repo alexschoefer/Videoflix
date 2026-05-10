@@ -44,14 +44,35 @@ The project is built with Django REST Framework and designed to integrate with a
 Videoflix/
 │
 ├── auth_app/                     # Authentication & user management
+│   ├── migrations/
+│   ├── templates/
+│   ├── models.py
+│   ├── serializers.py
+│   ├── signals.py
+│   ├── urls.py
+│   └── views.py
+│
 ├── video_app/                    # Video processing & streaming logic
+│   ├── management/
+│   ├── migrations/
+│   ├── services/
+│   ├── tasks.py
+│   ├── models.py
+│   ├── urls.py
+│   └── views.py
+│
 ├── core/                         # Django core configuration
+│   ├── settings.py
+│   ├── urls.py
+│   ├── asgi.py
+│   └── wsgi.py
+│
 ├── media/                        # Uploaded & processed video files
 ├── static/                       # Static assets
 │
-├── backend.entrypoint.sh
-├── backend.Dockerfile
 ├── docker-compose.yml
+├── backend.Dockerfile
+├── backend.entrypoint.sh
 ├── manage.py
 ├── requirements.txt
 └── .env.template
