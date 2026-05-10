@@ -189,7 +189,7 @@ class TokenRefreshView(TokenRefreshView):
         
         access_token = serializer.validated_data.get("access")
 
-        response = Response({"detail": "Token refreshed successfully!"}, status=status.HTTP_200_OK)
+        response = Response({"detail": "Token refreshed", "access": access_token}, status=status.HTTP_200_OK)
         response.set_cookie(
             key='access_token',
             value=str(access_token),
