@@ -192,28 +192,6 @@ Core components include:
 
 ---
 
-## 🐳 Docker Setup
-
-Start all services:
-
-```bash
-docker compose up --build
-```
-
-Run database migrations:
-
-```bash
-docker compose exec backend python manage.py migrate
-```
-
-Create superuser:
-
-```bash
-docker compose exec backend python manage.py createsuperuser
-```
-
----
-
 ## 🚀 Getting Started
 
 ### 1. Clone the repository
@@ -268,6 +246,100 @@ DOMAIN=http://127.0.0.1:8000
 FRONTEND_DOMAIN=http://127.0.0.1:5500/
 FRONTEND_ACCOUNT_ACTIVATION_PAGE=pages/auth/activate.html
 FRONTEND_RESET_PASSWORD_PAGE=pages/auth/confirm_password.html
+```
+
+### 3. Start the Docker containers
+
+Build and start all required services:
+
+```bash
+docker compose up --build
+```
+
+---
+
+### 4. Run database migrations
+
+Open a new terminal and execute:
+
+```bash
+docker compose exec web python manage.py migrate
+```
+
+---
+
+### 5. Create a Django superuser
+
+```bash
+docker compose exec web python manage.py createsuperuser
+```
+
+---
+
+### 6. Start the background worker
+
+Videoflix uses Django-RQ and Redis for asynchronous video processing.
+
+Open a second terminal window and start the worker:
+
+```bash
+docker compose exec web python manage.py rqworker
+```
+
+> ⚠️ Keep the worker running while processing videos.
+>
+> Without the worker, uploaded videos will not be transcoded or converted into HLS streams.
+---
+
+### 7. Access the application
+
+Backend API:
+```text
+http://localhost:8000
+```
+
+Django Admin Panel:
+```text
+http://localhost:8000/admin
+```
+
+---
+
+### 8. Test the API
+
+Example request:
+
+```bash
+curl http://localhost:8000/api/video/
+```
+
+---
+
+## 🐳 Docker Services
+
+The Docker environment includes:
+
+- `backend` — Django REST API
+- `db` — PostgreSQL database
+- `redis` — Redis cache & task broker
+- `rqworker` — Background processing worker
+
+---
+
+## 🎞️ FFmpeg Requirement
+
+FFmpeg is required for video transcoding and HLS generation.
+
+When using Docker, FFmpeg is already included in the container environment.
+
+No additional installation is required.
+
+For local development without Docker, FFmpeg must be installed manually.
+
+Verify installation with:
+
+```bash
+ffmpeg -version
 ```
 
 ---
