@@ -11,6 +11,8 @@ from django.contrib.auth.models import User
 from rest_framework_simplejwt.views import TokenObtainPairView,TokenRefreshView
 from django.conf import settings
 from auth_app.services.email_service import send_activation_email, send_password_reset_email
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.utils.decorators import method_decorator
 
 class RegistrationView(generics.CreateAPIView):
     """
@@ -79,7 +81,8 @@ class AccountActivationView(APIView):
             return Response({'message': 'Account activated successfully.'}, status=status.HTTP_200_OK)
         else:
             return Response({'error': 'Invalid activation link.'}, status=status.HTTP_400_BAD_REQUEST)
-        
+
+@method_decorator(ensure_csrf_cookie, name='dispatch')       
 class CookieTokenObtainPairView(TokenObtainPairView):
         """
         API view for obtaining JWT tokens using email and password.
