@@ -213,7 +213,40 @@ cp .env.template .env
 Example configuration:
 
 ```env
-# (unchanged from your version)
+DJANGO_SUPERUSER_USERNAME=admin
+DJANGO_SUPERUSER_PASSWORD=adminpassword
+DJANGO_SUPERUSER_EMAIL=admin@example.com
+
+SECRET_KEY=your-secret-key
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1
+CSRF_TRUSTED_ORIGINS=http://localhost:5500,http://127.0.0.1:5500
+CORS_ALLOWED_ORIGINS=http://127.0.0.1:5500,http://localhost:5500,http://127.0.0.1:5501,http://localhost:5501
+
+DB_NAME=your_database_name
+DB_USER=your_database_user
+DB_PASSWORD=your_database_password
+DB_HOST=db
+DB_PORT=5432
+
+REDIS_HOST=redis
+REDIS_LOCATION=redis://redis:6379/1
+REDIS_PORT=6379
+REDIS_DB=0
+
+EMAIL_HOST=smtp.example.com
+EMAIL_PORT=587
+EMAIL_HOST_USER=your_email_user
+EMAIL_HOST_PASSWORD=your_email_user_password
+EMAIL_USE_TLS=True
+EMAIL_USE_SSL=False
+DEFAULT_FROM_EMAIL=noreply@videoflix.com
+EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+
+DOMAIN=http://127.0.0.1:8000
+FRONTEND_DOMAIN=http://127.0.0.1:5500/
+FRONTEND_ACCOUNT_ACTIVATION_PAGE=pages/auth/activate.html
+FRONTEND_RESET_PASSWORD_PAGE=pages/auth/confirm_password.html
 ```
 
 ---
