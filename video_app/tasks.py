@@ -16,7 +16,6 @@ def convert_video_to_hls(movie_id):
     target = video.video_file.path
     _convert_video_to_hls_resolutions_format(movie_id, target)
     _create_video_thumbnail(movie_id, target, video)
-    print("START HLS JOB", movie_id)
 
 def _convert_video_to_hls_resolutions_format(movie_id, target):
     """

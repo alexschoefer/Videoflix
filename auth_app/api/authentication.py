@@ -1,6 +1,11 @@
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 class CustomJWTAuthentication(JWTAuthentication):
+    """
+    Custom JWT Authentication class that retrieves the JWT token from cookies instead of the Authorization header.
+    This class extends the default JWTAuthentication class provided by the Simple JWT library and overrides the authenticate method to look for the JWT token in the 'access_token' cookie. 
+    If the token is found and valid, it returns the associated user and token; otherwise, it returns None.
+    """
 
     def authenticate(self, request):
         """

@@ -33,16 +33,13 @@ class RegistrationView(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        # Token generation for account activation
         token = default_token_generator.make_token(user)
         uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
-        # Activation link
         activation_link = (
             f"{settings.FRONTEND_DOMAIN}"
             f"{settings.FRONTEND_ACCOUNT_ACTIVATION_PAGE}"
             f"?uid={uidb64}&token={token}"
             )
-        print(f"Activation link: {activation_link}")  # Debugging line to print the activation link
         send_activation_email(user, activation_link)
         return Response({
             'user': {
@@ -238,7 +235,6 @@ class PasswordResetView(APIView):
         Returns:
             A Response object indicating that the password reset email has been sent if the email is valid, or an error response if the email is not associated with any account.
         """
-        # Implementation for sending password reset email goes here
         serializer = PasswortResetSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.generate_password_reset_token(serializer.validated_data['email'])

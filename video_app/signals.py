@@ -4,8 +4,6 @@ from django.dispatch import receiver
 import os
 from .tasks import convert_video_to_hls
 
-print("SIGNALS LOADED")
-
 """
 Signal handler for the post_save signal of the Video model.
 """

@@ -5,7 +5,10 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, Toke
 from django.contrib.auth import authenticate
 
 class RegistrationSerializer(serializers.Serializer):
-    """Serializer for user registration."""
+    """
+    Serializer for user registration.
+    Validates the input data and creates a new user if the data is valid.
+    """
 
     password = serializers.CharField(write_only=True)
     confirmed_password = serializers.CharField(write_only=True)
@@ -47,7 +50,6 @@ class LoginSerializer(serializers.Serializer):
     Serializer for user login using email and password.
     Returns JWT tokens if authentication is successful.
     """
-
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
 
@@ -58,7 +60,6 @@ class LoginSerializer(serializers.Serializer):
         if not email or not password:
             raise serializers.ValidationError("Email and password are required.")
 
-        # 🔑 Wichtig: username=email (weil Django das erwartet)
         user = authenticate(username=email, password=password)
 
         if user is None:
@@ -67,7 +68,6 @@ class LoginSerializer(serializers.Serializer):
         if not user.is_active:
             raise serializers.ValidationError("Account is not activated.")
 
-        # JWT Tokens erzeugen
         refresh = RefreshToken.for_user(user)
 
         return {
@@ -80,7 +80,6 @@ class PasswortResetSerializer(serializers.Serializer):
     """
     Serializer for password reset requests.
     """
-
     email = serializers.EmailField(required=True)
 
     def validate_email(self, value):
@@ -95,7 +94,6 @@ class PasswordConfirmResetSerializer(serializers.Serializer):
     """
     Serializer for confirming password reset.
     """
-
     new_password = serializers.CharField(write_only=True)
     confirmed_password = serializers.CharField(write_only=True)
 
