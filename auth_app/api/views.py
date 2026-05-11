@@ -1,18 +1,37 @@
-from rest_framework import status, generics
-from rest_framework.response import Response
-from .serializers import RegistrationSerializer, LoginSerializer, PasswortResetSerializer
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from django.contrib.auth.tokens import default_token_generator
-from rest_framework.views import APIView
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes, force_str
-from django.contrib.auth.models import User
-from rest_framework_simplejwt.views import TokenObtainPairView,TokenRefreshView
+# Third-party imports
 from django.conf import settings
-from auth_app.services.email_service import send_activation_email, send_password_reset_email
-from django.views.decorators.csrf import ensure_csrf_cookie
+from django.contrib.auth.models import User
+from django.contrib.auth.tokens import default_token_generator
 from django.utils.decorators import method_decorator
+from django.utils.encoding import force_bytes, force_str
+from django.utils.http import (
+    urlsafe_base64_decode,
+    urlsafe_base64_encode,
+)
+from django.views.decorators.csrf import ensure_csrf_cookie
+
+from rest_framework import generics, status
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
+
+# Local imports
+from .serializers import (
+    LoginSerializer,
+    PasswortResetSerializer,
+    RegistrationSerializer,
+)
+
+from auth_app.services.email_service import (
+    send_activation_email,
+    send_password_reset_email,
+)
 
 class RegistrationView(generics.CreateAPIView):
     """

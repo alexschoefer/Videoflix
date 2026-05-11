@@ -1,7 +1,12 @@
-from django.db.models.signals import post_save, post_delete
-from .models import Video
-from django.dispatch import receiver
+# standard Library
 import os
+
+# third-party
+from django.db.models.signals import post_delete, post_save
+from django.dispatch import receiver
+
+# local Imports
+from .models import Video
 from .tasks import convert_video_to_hls
 
 """

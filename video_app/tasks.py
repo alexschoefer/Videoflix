@@ -1,6 +1,11 @@
+# standard library imports
 import os
-from django.conf import settings
 import subprocess
+
+# third-party imports
+from django.conf import settings
+
+# local imports
 from video_app.models import Video
 
 def convert_video_to_hls(movie_id):

@@ -1,14 +1,19 @@
+# standard library imports
 import os
+
+# third-party imports
 from django.conf import settings
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework import generics
-from .serializers import VideoSerializer
-from video_app.models import Video
-from auth_app.api.authentication import CustomJWTAuthentication
 from django.http import HttpResponse
+from rest_framework import generics, status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+# local imports
+from auth_app.api.authentication import CustomJWTAuthentication
+from video_app.models import Video
+from .serializers import VideoSerializer
+
 
 class VideoListView(generics.ListAPIView):
     """

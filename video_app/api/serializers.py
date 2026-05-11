@@ -1,5 +1,9 @@
-from video_app.models import Video
+# third-party imports
 from rest_framework import serializers
+
+# local imports
+from video_app.models import Video
+
 
 class VideoSerializer(serializers.ModelSerializer):
     """
