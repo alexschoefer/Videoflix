@@ -258,39 +258,6 @@ docker compose up --build
 
 ---
 
-### 4. Run database migrations
-
-Open a new terminal and execute:
-
-```bash
-docker compose exec web python manage.py migrate
-```
-
----
-
-### 5. Create a Django superuser
-
-```bash
-docker compose exec web python manage.py createsuperuser
-```
-
----
-
-### 6. Start the background worker
-
-Videoflix uses Django-RQ and Redis for asynchronous video processing.
-
-Open a second terminal window and start the worker:
-
-```bash
-docker compose exec web python manage.py rqworker
-```
-
-> ⚠️ Keep the worker running while processing videos.
->
-> Without the worker, uploaded videos will not be transcoded or converted into HLS streams.
----
-
 ### 7. Access the application
 
 Backend API:
