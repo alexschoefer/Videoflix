@@ -258,7 +258,7 @@ docker compose up --build
 
 ---
 
-### 7. Access the application
+### 4. Access the application
 
 Backend API:
 ```text
@@ -272,7 +272,7 @@ http://localhost:8000/admin
 
 ---
 
-### 8. Test the API
+### 5. Test the API
 
 Example request:
 

@@ -1,5 +1,6 @@
-from django.core.mail import EmailMultiAlternatives
+# third-party imports
 from django.conf import settings
+from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 
 def send_activation_email(user, activation_link):
